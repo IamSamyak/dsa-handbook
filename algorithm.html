@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Algorithm Docs</title>
+
+  <!-- Markdown Parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Code Highlight -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/highlight.js/styles/github.css"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js/lib/highlight.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="algorithm-style.css" />
+</head>
+<body>
+
+  <header class="top-bar">
+    <a href="index.html" class="back-btn">⬅ Back</a>
+    <h1>📘 Algorithm Notes</h1>
+  </header>
+
+  <main class="container">
+    <div id="content" class="markdown-body"></div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search)
+    const path = params.get("path")
+
+    const rawUrl = `https://raw.githubusercontent.com/IamSamyak/Algorithms/main/${path}`
+
+    fetch(rawUrl)
+      .then(res => res.text())
+      .then(md => {
+        document.getElementById("content").innerHTML = marked.parse(md)
+        hljs.highlightAll()
+      })
+  </script>
+</body>
+</html>
