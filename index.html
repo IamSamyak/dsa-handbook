@@ -1,51 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Algorithms Explorer</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DSA Algorithms Dashboard</title>
 
-  <link rel="stylesheet" href="style.css" />
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#137fec",
+            "background-light": "#f6f7f8",
+            "background-dark": "#101922"
+          },
+          fontFamily: {
+            "display": ["Space Grotesk", "sans-serif"]
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px"
+          }
+        }
+      }
+    }
+  </script>
 
-  <!-- highlight.js (GitHub style) -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
-  />
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Highlight.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"/>
+
+  <style>
+    body { font-family: 'Space Grotesk', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
 
-<body>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
 
-<header>
-  <h1>📘 Algorithms Explorer</h1>
-  <p class="subtitle">Browse & understand algorithms with clean explanations</p>
-</header>
+<div class="flex h-screen overflow-hidden">
 
-<div class="controls">
-  <input
-    type="text"
-    placeholder="🔍 Search algorithm..."
-    oninput="searchAlgo(this.value)"
-  />
-</div>
-
-<div id="list" class="grid"></div>
-
-<!-- PREVIEW MODAL -->
-<div id="previewModal" class="modal hidden">
-  <div class="modal-content">
-    <div class="modal-header">
-      <span id="modalTitle"></span>
-      <div>
-        <button onclick="copyPreview()">📋 Copy</button>
-        <button onclick="closePreview()">✖</button>
+  <!-- Sidebar -->
+  <aside class="w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col h-full p-6">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-8 h-8 bg-primary rounded flex items-center justify-center text-white">
+        <span class="material-symbols-outlined">terminal</span>
       </div>
+      <h1 class="text-xl font-bold tracking-tight">DSA Lib</h1>
     </div>
 
-    <pre><code id="modalCode" class="language-java"></code></pre>
+    <nav class="flex-1">
+      <a class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg font-medium hover:bg-primary/20 transition-colors" href="#">
+        <span class="material-symbols-outlined text-xl">dashboard</span>
+        Dashboard
+      </a>
+    </nav>
+
+    <!-- Theme Toggle Button -->
+    <button id="themeToggle" class="mt-4 px-3 py-2 bg-primary text-white rounded hover:bg-primary/80 transition-colors">
+      🌙 Dark Mode
+    </button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto p-8">
+    <!-- Search -->
+    <div class="mb-6">
+      <input
+        type="text"
+        placeholder="Search algorithm..."
+        class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+        oninput="searchAlgo(this.value)"
+      />
+    </div>
+
+    <!-- Algorithm Grid -->
+    <div id="list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"></div>
+
+    <!-- Time Complexity Quick Reference Table -->
+    <section>
+      <h2 class="text-xl font-bold mb-4">Time & Space Complexity Quick Reference</h2>
+      <div class="overflow-x-auto no-scrollbar">
+        <table id="complexityTable" class="w-full text-left border-collapse">
+          <thead>
+            <tr class="text-[10px] uppercase font-bold text-slate-400 border-b border-slate-200 dark:border-slate-800">
+              <th class="py-2 px-3">Algorithm</th>
+              <th class="py-2 px-3">Best</th>
+              <th class="py-2 px-3">Average</th>
+              <th class="py-2 px-3">Worst</th>
+              <th class="py-2 px-3">Space</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800/50">
+            <!-- Rows populated dynamically by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+  <div class="bg-white dark:bg-slate-800 rounded-xl p-6 w-11/12 max-w-3xl relative">
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="modalTitle" class="font-bold text-lg"></h3>
+      <div class="flex gap-2">
+        <button onclick="copyPreview()" class="px-3 py-1 bg-primary text-white rounded hover:bg-primary/80 transition-colors">📋 Copy</button>
+        <button onclick="closePreview()" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors">✖</button>
+      </div>
+    </div>
+    <pre class="overflow-x-auto"><code id="modalCode" class="language-java"></code></pre>
   </div>
 </div>
 
+<!-- Script -->
 <script src="script.js"></script>
+<script>
+  // THEME TOGGLE + LOCAL STORAGE
+  const htmlEl = document.documentElement;
+  const themeBtn = document.getElementById("themeToggle");
+
+  function applyTheme(theme) {
+    if (theme === "dark") htmlEl.classList.add("dark");
+    else htmlEl.classList.remove("dark");
+  }
+
+  function updateThemeButton() {
+    if (!themeBtn) return;
+    themeBtn.textContent = htmlEl.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
+  }
+
+  function toggleTheme() {
+    const isDark = htmlEl.classList.contains("dark");
+    const newTheme = isDark ? "light" : "dark";
+    applyTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeButton();
+  }
+
+  function initTheme() {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) applyTheme(savedTheme);
+    else applyTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    updateThemeButton();
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    initTheme();
+    if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
+  });
+</script>
+
 </body>
 </html>

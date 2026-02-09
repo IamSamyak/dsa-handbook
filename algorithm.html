@@ -1,45 +1,327 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Algorithm Docs</title>
 
-  <!-- Markdown Parser -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: "#137fec",
+          },
+          fontFamily: {
+            display: ["Inter", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
 
-  <!-- Code Highlight -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/highlight.js/styles/github.css"
-  />
+  <!-- Highlight.js & Marked.js -->
+  <link id="hljsStyle" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js/styles/github-light.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/highlight.js/lib/highlight.js"></script>
 
-  <!-- Custom Styles -->
-  <link rel="stylesheet" href="algorithm-style.css" />
-</head>
-<body>
+  <style>
+    /* Theme CSS Variables */
+    :root {
+      --top-bg: #f6f7f8;
+      --top-text: #111827;
+      --border-color: #d1d5db;
+      --content-bg: #f6f7f8;
+      --content-text: #111827;
+      --blockquote-bg: #e5e7eb;
+      --blockquote-text: #111827;
+      --table-header-bg: #e5e7eb;
+      --link-color: #137fec;
+      --primary-color: #137fec;
+      --primary-hover: #0f5ecc;
+      --primary-text: #fff;
+      --code-bg: #f3f4f6;
+      --code-text: #111827;
+    }
 
-  <header class="top-bar">
-    <a href="index.html" class="back-btn">⬅ Back</a>
-    <h1>📘 Algorithm Notes</h1>
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.7;
+      margin: 0;
+      background-color: var(--content-bg);
+      color: var(--content-text);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background-color: var(--top-bg);
+      color: var(--top-text);
+      border-bottom: 1px solid var(--border-color);
+      transition: all 0.3s;
+      z-index: 10;
+    }
+
+    .back-btn {
+      color: var(--link-color);
+    }
+
+    .back-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* Main Content */
+    .content-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      transition: margin-right 0.3s;
+    }
+
+    /* Markdown body */
+    .markdown-body {
+      width: 100%;
+      background: none; /* no card background */
+      color: var(--content-text);
+    }
+
+    /* Markdown elements using theme variables */
+    .markdown-body h1,
+    .markdown-body h2,
+    .markdown-body h3,
+    .markdown-body h4,
+    .markdown-body h5,
+    .markdown-body h6,
+    .markdown-body p,
+    .markdown-body li {
+      color: var(--content-text);
+    }
+
+    .markdown-body a {
+      color: var(--link-color);
+    }
+
+    .markdown-body a:hover {
+      text-decoration: underline;
+    }
+
+    .markdown-body blockquote {
+      border-left: 4px solid var(--border-color);
+      background-color: var(--blockquote-bg);
+      color: var(--blockquote-text);
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+    }
+
+    .markdown-body table th,
+    .markdown-body table td {
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 0.75rem;
+      transition: all 0.3s;
+    }
+
+    .markdown-body table th {
+      background-color: var(--table-header-bg);
+    }
+
+    .markdown-body pre {
+      background-color: var(--code-bg);
+      color: var(--code-text);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .markdown-body code {
+      font-size: 0.875rem;
+      color: var(--code-text);
+      background: var(--code-bg);
+      padding: 0.1rem 0.25rem;
+      border-radius: 0.25rem;
+    }
+
+    /* Drawer */
+    .code-drawer {
+      position: fixed;
+      top: 0;
+      right: -60%;
+      width: 60%;
+      height: 100%;
+      background-color: var(--code-bg);
+      color: var(--code-text);
+      padding: 2rem;
+      box-shadow: -2px 0 6px rgba(0, 0, 0, 0.5);
+      overflow-y: auto;
+      transition: right 0.3s, background-color 0.3s, color 0.3s;
+      z-index: 50;
+    }
+
+    .code-drawer.open {
+      right: 0;
+    }
+
+    .markdown-body h1 { font-size: 2rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+.markdown-body h2 { font-size: 1.5rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem; }
+.markdown-body h3 { font-size: 1.25rem; font-weight: 500; margin-top: 1rem; margin-bottom: 0.75rem; }
+.markdown-body h4 { font-size: 1.125rem; font-weight: 500; margin-top: 0.75rem; margin-bottom: 0.5rem; }
+.markdown-body h5 { font-size: 1rem; font-weight: 500; margin-top: 0.5rem; margin-bottom: 0.25rem; }
+.markdown-body h6 { font-size: 0.875rem; font-weight: 500; margin-top: 0.25rem; margin-bottom: 0.25rem; }
+
+.markdown-body p { margin: 0.75rem 0; font-size: 1rem; }
+.markdown-body ul, .markdown-body ol { padding-left: 1.5rem; margin: 0.75rem 0; font-size: 1rem; }
+.markdown-body li { margin: 0.25rem 0; }
+.markdown-body pre { font-size: 0.875rem; line-height: 1.4; }
+.markdown-body code { font-size: 0.875rem; }
+
+
+    .drawer-toggle {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      background-color: var(--primary-color);
+      color: var(--primary-text);
+      padding: 0.5rem 1rem;
+      border-top-left-radius: 0.5rem;
+      border-bottom-left-radius: 0.5rem;
+      cursor: pointer;
+      z-index: 60;
+      transition: background-color 0.2s;
+    }
+
+    .drawer-toggle:hover {
+      background-color: var(--primary-hover);
+    }
+  </style>
+</head>
+
+<body>
+  <header class="top-bar sticky top-0 p-4 flex items-center gap-4">
+    <a href="index.html" class="back-btn font-medium">⬅ Back</a>
+    <h1 class="text-xl font-semibold">📘 Algorithm Notes</h1>
+    <button id="themeToggle" class="ml-auto px-3 py-1 rounded transition">🌙 Dark Mode</button>
   </header>
 
-  <main class="container">
+  <div class="content-wrapper">
     <div id="content" class="markdown-body"></div>
-  </main>
+  </div>
+
+  <div class="drawer-toggle" id="drawerToggle">💻 Code</div>
+
+  <div class="code-drawer" id="codeDrawer">
+    <h2 class="font-semibold text-lg mb-2" id="codeTitle">Java Code</h2>
+    <pre><code id="codeBlock" class="language-java">Loading...</code></pre>
+    <button onclick="copyCode()" class="mt-2 px-3 py-1 rounded transition">📋 Copy Code</button>
+  </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search)
-    const path = params.get("path")
+    const lightVars = {
+      '--top-bg': '#f6f7f8',
+      '--top-text': '#111827',
+      '--border-color': '#d1d5db',
+      '--content-bg': '#f6f7f8',
+      '--content-text': '#111827',
+      '--blockquote-bg': '#e5e7eb',
+      '--blockquote-text': '#111827',
+      '--table-header-bg': '#e5e7eb',
+      '--link-color': '#137fec',
+      '--primary-color': '#137fec',
+      '--primary-hover': '#0f5ecc',
+      '--primary-text': '#fff',
+      '--code-bg': '#f3f4f6',
+      '--code-text': '#111827'
+    };
 
-    const rawUrl = `https://raw.githubusercontent.com/IamSamyak/Algorithms/main/${path}`
+    const darkVars = {
+      '--top-bg': '#0f1724',
+      '--top-text': '#f8fafc',
+      '--border-color': '#374151',
+      '--content-bg': '#0f1724',
+      '--content-text': '#f8fafc',
+      '--blockquote-bg': '#1e293b',
+      '--blockquote-text': '#d1d5db',
+      '--table-header-bg': '#111827',
+      '--link-color': '#60a5fa',
+      '--primary-color': '#137fec',
+      '--primary-hover': '#0f5ecc',
+      '--primary-text': '#fff',
+      '--code-bg': '#1e293b',
+      '--code-text': '#f8fafc'
+    };
 
-    fetch(rawUrl)
-      .then(res => res.text())
-      .then(md => {
-        document.getElementById("content").innerHTML = marked.parse(md)
-        hljs.highlightAll()
-      })
+    function applyTheme(vars) {
+      for (let key in vars) document.documentElement.style.setProperty(key, vars[key]);
+    }
+
+    const themeBtn = document.getElementById("themeToggle");
+    const htmlEl = document.documentElement;
+
+    function setTheme(theme) {
+      if (theme === 'dark') {
+        htmlEl.classList.add('dark');
+        applyTheme(darkVars);
+        themeBtn.textContent = '☀️ Light Mode';
+        document.getElementById('hljsStyle').href =
+          'https://cdn.jsdelivr.net/npm/highlight.js/styles/github-dark.min.css';
+      } else {
+        htmlEl.classList.remove('dark');
+        applyTheme(lightVars);
+        themeBtn.textContent = '🌙 Dark Mode';
+        document.getElementById('hljsStyle').href =
+          'https://cdn.jsdelivr.net/npm/highlight.js/styles/github-light.min.css';
+      }
+      localStorage.setItem('theme', theme);
+    }
+
+    themeBtn.addEventListener('click', () => {
+      setTheme(htmlEl.classList.contains('dark') ? 'light' : 'dark');
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      setTheme(saved);
+
+      // Load markdown
+      const params = new URLSearchParams(window.location.search);
+      const path = params.get("path");
+      if (path) {
+        const mdUrl = `https://raw.githubusercontent.com/IamSamyak/Algorithms/main/${path}`;
+        const javaName = path.replace(".md", "");
+        fetch(mdUrl).then(r => r.text()).then(md => {
+          document.getElementById("content").innerHTML = marked.parse(md);
+          hljs.highlightAll();
+        });
+
+        const codeUrl = `https://raw.githubusercontent.com/IamSamyak/Algorithms/main/${javaName}.java`;
+        let currentCode = '';
+        fetch(codeUrl).then(r => r.text()).then(code => {
+          currentCode = code;
+          const codeEl = document.getElementById("codeBlock");
+          codeEl.textContent = code;
+          hljs.highlightElement(codeEl);
+          document.getElementById("codeTitle").textContent = `${javaName}.java`;
+        });
+
+        window.copyCode = () => {
+          navigator.clipboard.writeText(currentCode);
+          alert("Code copied ✅");
+        }
+      }
+    });
+
+    // Drawer toggle
+    const drawerToggle = document.getElementById("drawerToggle");
+    const codeDrawer = document.getElementById("codeDrawer");
+    const markdownBody = document.getElementById("content");
+    drawerToggle.addEventListener('click', () => {
+      codeDrawer.classList.toggle('open');
+      markdownBody.style.width = codeDrawer.classList.contains('open') ? '40%' : '100%';
+    });
   </script>
 </body>
+
 </html>
